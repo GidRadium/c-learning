@@ -10,5 +10,5 @@ target_link_libraries(example_main PRIVATE example_foo_lib)
 
 # Tests
 add_executable(example_test test.c)
-target_link_libraries(test PRIVATE example_foo_lib)
-add_test(NAME ExampleTest COMMAND test)
+target_link_libraries(example_test PRIVATE example_foo_lib)
+add_test(NAME ExampleTest COMMAND example_test)
