@@ -79,6 +79,10 @@ CsvRow* getRow(const char* line)
         return NULL;
     }
 
+    row->line = NULL;
+    row->elements = NULL;
+    row->elementsCount = 0;
+
     size_t lineLength = strlen(line);
     row->line = malloc((lineLength + 1) * sizeof(char));
     if (row->line == NULL) {
@@ -145,6 +149,17 @@ CsvParser* createFromFile(FILE* file)
         return NULL;
     }
 
+    parser->rows = NULL;
+    parser->maxColumnsLength = NULL;
+    parser->rowsCount = 0;
+    parser->columnsCount = 0;
+
+    if (row->elementsCount == 0) {
+        deleteRow(row);
+        deleteCsvParser(parser);
+        return NULL;
+    }
+
     parser->maxColumnsLength = malloc(row->elementsCount * sizeof(size_t));
     if (parser->maxColumnsLength == NULL) {
         deleteCsvParser(parser);
@@ -156,6 +171,7 @@ CsvParser* createFromFile(FILE* file)
     if (parser->rows == NULL) {
         deleteCsvParser(parser);
         deleteRow(row);
+        return NULL;
     }
 
     parser->columnsCount = row->elementsCount;
