@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// ./build/Task-01-CSVPP/csvpp "Task-01-CSVPP/test_data/input.csv" "Task-01-CSVPP/test_data/output.txt"
 int main(int argc, char* argv[])
 {
     if (argc != 3) {

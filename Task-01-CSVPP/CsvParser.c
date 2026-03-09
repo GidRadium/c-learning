@@ -87,6 +87,21 @@ void deleteRow(CsvRow* row)
     free(row);
 }
 
+void deleteRowContent(CsvRow* row)
+{
+    if (row == NULL) {
+        return;
+    }
+
+    if (row->elements != NULL) {
+        free(row->elements);
+    }
+
+    if (row->line != NULL) {
+        free(row->line);
+    }
+}
+
 typedef struct CsvParser {
     size_t rowsCount;
     CsvRow* rows;
@@ -228,7 +243,7 @@ void deleteCsvParser(CsvParser* parser)
         size_t i = 0;
         for (i = 0; i < parser->rowsCount; ++i) {
             // printf("%d ", (int)i);
-            deleteRow(&parser->rows[i]);
+            deleteRowContent(&parser->rows[i]);
         }
 
         free(parser->rows);
