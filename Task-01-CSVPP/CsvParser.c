@@ -36,40 +36,6 @@ bool isNumber(const char* line, size_t startIndex, size_t length)
     return (parseEnd != start && parseEnd == end);
 }
 
-CsvRow* getRow(const char* line)
-{
-    if (line == NULL) {
-        return NULL;
-    }
-
-    CsvRow* row = malloc(sizeof(CsvRow));
-    size_t lineLength = strlen(line);
-    row->line = malloc((lineLength + 1) * sizeof(char));
-    strcpy(row->line, line);
-    row->elements = malloc(MAX_ELEMENTS_IN_ROW_COUNT * sizeof(CsvElementInRow));
-    row->elementsCount = 0;
-
-    size_t i = 0;
-    size_t start = 0;
-    size_t quotesCount = 0;
-
-    for (i = 0; i < lineLength; ++i) {
-        if (row->line[i] == '"') {
-            quotesCount++;
-        }
-
-        if ((row->line[i] == ',' || row->line[i] == '\n' || row->line[i] == '\0') && quotesCount % 2 == 0) {
-            row->elements[row->elementsCount].startIndexInRow = start;
-            row->elements[row->elementsCount].length = i - start;
-            row->elements[row->elementsCount].isNumber = isNumber(row->line, start, i - start);
-            row->elementsCount++;
-            start = i + 1;
-        }
-    }
-
-    return row;
-}
-
 void deleteRow(CsvRow* row)
 {
     if (row == NULL) {
@@ -102,6 +68,54 @@ void deleteRowContent(CsvRow* row)
     }
 }
 
+CsvRow* getRow(const char* line)
+{
+    if (line == NULL) {
+        return NULL;
+    }
+
+    CsvRow* row = malloc(sizeof(CsvRow));
+    if (row == NULL) {
+        return NULL;
+    }
+
+    size_t lineLength = strlen(line);
+    row->line = malloc((lineLength + 1) * sizeof(char));
+    if (row->line == NULL) {
+        deleteRow(row);
+        return NULL;
+    }
+
+    memcpy(row->line, line, lineLength + 1);
+    row->elements = malloc(MAX_ELEMENTS_IN_ROW_COUNT * sizeof(CsvElementInRow));
+    if (row->elements == NULL) {
+        deleteRow(row);
+        return NULL;
+    }
+
+    row->elementsCount = 0;
+
+    size_t i = 0;
+    size_t start = 0;
+    size_t quotesCount = 0;
+
+    for (i = 0; i < lineLength; ++i) {
+        if (row->line[i] == '"') {
+            quotesCount++;
+        }
+
+        if ((row->line[i] == ',' || row->line[i] == '\n' || row->line[i] == '\0') && quotesCount % 2 == 0) {
+            row->elements[row->elementsCount].startIndexInRow = start;
+            row->elements[row->elementsCount].length = i - start;
+            row->elements[row->elementsCount].isNumber = isNumber(row->line, start, i - start);
+            row->elementsCount++;
+            start = i + 1;
+        }
+    }
+
+    return row;
+}
+
 typedef struct CsvParser {
     size_t rowsCount;
     CsvRow* rows;
@@ -126,11 +140,28 @@ CsvParser* createFromFile(FILE* file)
     }
 
     CsvParser* parser = malloc(sizeof(CsvParser));
-    parser->columnsCount = row->elementsCount;
-    parser->maxColumnsLength = malloc(parser->columnsCount * sizeof(size_t));
-    parser->rowsCount = 1;
+    if (parser == NULL) {
+        deleteRow(row);
+        return NULL;
+    }
+
+    parser->maxColumnsLength = malloc(row->elementsCount * sizeof(size_t));
+    if (parser->maxColumnsLength == NULL) {
+        deleteCsvParser(parser);
+        deleteRow(row);
+        return NULL;
+    }
+
     parser->rows = malloc(MAX_ROWS_COUNT * sizeof(CsvRow));
+    if (parser->rows == NULL) {
+        deleteCsvParser(parser);
+        deleteRow(row);
+    }
+
+    parser->columnsCount = row->elementsCount;
+    parser->rowsCount = 1;
     parser->rows[0] = *row;
+
     free(row);
     row = NULL;
 
@@ -175,15 +206,37 @@ void writeToFile(CsvParser* parser, FILE* file)
     }
 
     char* borderHead = malloc((rowLength + 1) * sizeof(char));
-    memset(borderHead, '=', rowLength);
-    borderHead[rowLength] = '\0';
     char* borderBody = malloc((rowLength + 1) * sizeof(char));
-    memset(borderBody, '-', rowLength);
-    borderBody[rowLength] = '\0';
     char* rowClean = malloc((rowLength + 1) * sizeof(char));
-    memset(rowClean, ' ', rowLength);
-    rowClean[rowLength] = '\0';
     char* rowTemp = malloc((rowLength + 1) * sizeof(char));
+
+    if (borderHead == NULL || borderBody == NULL || rowClean == NULL || rowTemp == NULL) {
+        if (borderHead != NULL) {
+            free(borderHead);
+        }
+
+        if (borderBody != NULL) {
+            free(borderBody);
+        }
+
+        if (rowClean != NULL) {
+            free(rowClean);
+        }
+
+        if (rowTemp != NULL) {
+            free(rowTemp);
+        }
+
+        return;
+    }
+
+    memset(borderHead, '=', rowLength);
+    memset(borderBody, '-', rowLength);
+    memset(rowClean, ' ', rowLength);
+
+    borderHead[rowLength] = '\0';
+    borderBody[rowLength] = '\0';
+    rowClean[rowLength] = '\0';
 
     size_t wallPosition = 0;
     for (i = 0; i < parser->columnsCount; ++i) {
@@ -242,7 +295,6 @@ void deleteCsvParser(CsvParser* parser)
     if (parser->rows != NULL) {
         size_t i = 0;
         for (i = 0; i < parser->rowsCount; ++i) {
-            // printf("%d ", (int)i);
             deleteRowContent(&parser->rows[i]);
         }
 
