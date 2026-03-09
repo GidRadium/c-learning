@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define MAX_LINE_LENGTH 4000
 #define MAX_ROWS_COUNT 500
+#define MAX_ELEMENTS_IN_ROW_COUNT 200
 
 typedef struct CsvElementInRow {
     size_t startIndexInRow;
@@ -19,12 +21,60 @@ typedef struct CsvRow {
 
 } CsvRow;
 
+bool isNumber(const char *line, size_t startIndex, size_t length) {
+    if (length == 0) {
+        return false;
+    }
+
+    const char *start = line + startIndex;
+    const char *end = start + length;
+
+    char *parseEnd;
+    strtod(start, &parseEnd);
+
+    return (parseEnd != start && parseEnd == end);
+}
+
 CsvRow* getRow(const char *line) {
-    return NULL;
+    if (line == NULL) {
+        return NULL;
+    }
+
+    CsvRow *row = malloc(sizeof(CsvRow));
+    size_t lineLength = strlen(line);
+    row->line = malloc((lineLength + 1) * sizeof(char));
+    row->elements = malloc(MAX_ELEMENTS_IN_ROW_COUNT * sizeof(CsvElementInRow));
+    row->elementsCount = 0;
+
+    size_t i = 0;
+    size_t start = 0;
+    for (i = 0; i < lineLength; ++i) {
+        if (row->line[i] == ',' || row->line[i] == '\n' || row->line[i] == '\0') {
+            row->elements[row->elementsCount].startIndexInRow = start;
+            row->elements[row->elementsCount].length = i - start;
+            row->elements[row->elementsCount].isNumber = isNumber(row->line, start, i - start);
+            row->elementsCount++;
+            start = i + 1;
+        }
+    }
+
+    return row;
 }
 
 void deleteRow(CsvRow *row) {
+    if (row == NULL) {
+        return;
+    }
 
+    if (row->elements != NULL) {
+        free(row->elements);
+    }
+
+    if (row->line != NULL) {
+        free(row->line);
+    }
+
+    free(row);
 }
 
 typedef struct CsvParser {
