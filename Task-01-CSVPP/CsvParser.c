@@ -83,7 +83,7 @@ CsvParser* createFromFile(FILE *file) {
         parser->rowsCount++;
     }
 
-    return NULL;
+    return parser;
 }
 
 void writeToFile(CsvParser *parser, FILE *file) {
