@@ -204,5 +204,22 @@ void writeToFile(CsvParser *parser, FILE *file) {
 }
 
 void deleteCsvParser(CsvParser *parser) {
+    if (parser == NULL) {
+        return;
+    }
 
+    if (parser->maxColumnsLength != NULL) {
+        free(parser->maxColumnsLength);
+    }
+
+    if (parser->rows != NULL) {
+        size_t i = 0;
+        for (i = 0; i < parser->rowsCount; ++i) {
+            deleteRow(&parser->rows[i]);
+        }
+
+        free(parser->rows);
+    }
+
+    free(parser);
 }
