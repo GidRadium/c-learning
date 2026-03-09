@@ -1,11 +1,11 @@
 #include "CsvParser.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define MAX_LINE_LENGTH 4000
-#define MAX_ROWS_COUNT 500
+#define MAX_ROWS_COUNT 4000
 #define MAX_ELEMENTS_IN_ROW_COUNT 200
 
 typedef struct CsvElementInRow {
@@ -15,32 +15,34 @@ typedef struct CsvElementInRow {
 } CsvElementInRow;
 
 typedef struct CsvRow {
-    char *line;
+    char* line;
     size_t elementsCount;
-    CsvElementInRow *elements;
+    CsvElementInRow* elements;
 
 } CsvRow;
 
-bool isNumber(const char *line, size_t startIndex, size_t length) {
+bool isNumber(const char* line, size_t startIndex, size_t length)
+{
     if (length == 0) {
         return false;
     }
 
-    const char *start = line + startIndex;
-    const char *end = start + length;
+    const char* start = line + startIndex;
+    const char* end = start + length;
 
-    char *parseEnd;
+    char* parseEnd;
     strtod(start, &parseEnd);
 
     return (parseEnd != start && parseEnd == end);
 }
 
-CsvRow* getRow(const char *line) {
+CsvRow* getRow(const char* line)
+{
     if (line == NULL) {
         return NULL;
     }
 
-    CsvRow *row = malloc(sizeof(CsvRow));
+    CsvRow* row = malloc(sizeof(CsvRow));
     size_t lineLength = strlen(line);
     row->line = malloc((lineLength + 1) * sizeof(char));
     strcpy(row->line, line);
@@ -49,8 +51,14 @@ CsvRow* getRow(const char *line) {
 
     size_t i = 0;
     size_t start = 0;
+    size_t quotesCount = 0;
+
     for (i = 0; i < lineLength; ++i) {
-        if (row->line[i] == ',' || row->line[i] == '\n' || row->line[i] == '\0') {
+        if (row->line[i] == '"') {
+            quotesCount++;
+        }
+
+        if ((row->line[i] == ',' || row->line[i] == '\n' || row->line[i] == '\0') && quotesCount % 2 == 0) {
             row->elements[row->elementsCount].startIndexInRow = start;
             row->elements[row->elementsCount].length = i - start;
             row->elements[row->elementsCount].isNumber = isNumber(row->line, start, i - start);
@@ -62,7 +70,8 @@ CsvRow* getRow(const char *line) {
     return row;
 }
 
-void deleteRow(CsvRow *row) {
+void deleteRow(CsvRow* row)
+{
     if (row == NULL) {
         return;
     }
@@ -80,12 +89,13 @@ void deleteRow(CsvRow *row) {
 
 typedef struct CsvParser {
     size_t rowsCount;
-    CsvRow *rows;
+    CsvRow* rows;
     size_t columnsCount;
-    size_t *maxColumnsLength;
+    size_t* maxColumnsLength;
 } CsvParser;
 
-CsvParser* createFromFile(FILE *file) {
+CsvParser* createFromFile(FILE* file)
+{
     if (file == NULL) {
         return NULL;
     }
@@ -95,12 +105,12 @@ CsvParser* createFromFile(FILE *file) {
         return NULL;
     }
 
-    CsvRow *row = getRow(line);
+    CsvRow* row = getRow(line);
     if (row == NULL) {
         return NULL;
     }
 
-    CsvParser *parser = malloc(sizeof(CsvParser));
+    CsvParser* parser = malloc(sizeof(CsvParser));
     parser->columnsCount = row->elementsCount;
     parser->maxColumnsLength = malloc(parser->columnsCount * sizeof(size_t));
     parser->rowsCount = 1;
@@ -137,7 +147,8 @@ CsvParser* createFromFile(FILE *file) {
     return parser;
 }
 
-void writeToFile(CsvParser *parser, FILE *file) {
+void writeToFile(CsvParser* parser, FILE* file)
+{
     if (file == NULL || parser == NULL) {
         return;
     }
@@ -148,16 +159,16 @@ void writeToFile(CsvParser *parser, FILE *file) {
         rowLength += parser->maxColumnsLength[i];
     }
 
-    char *borderHead = malloc((rowLength + 1) * sizeof(char));
+    char* borderHead = malloc((rowLength + 1) * sizeof(char));
     memset(borderHead, '=', rowLength);
     borderHead[rowLength] = '\0';
-    char *borderBody = malloc((rowLength + 1) * sizeof(char));
+    char* borderBody = malloc((rowLength + 1) * sizeof(char));
     memset(borderBody, '-', rowLength);
     borderBody[rowLength] = '\0';
-    char *rowClean = malloc((rowLength + 1) * sizeof(char));
+    char* rowClean = malloc((rowLength + 1) * sizeof(char));
     memset(rowClean, ' ', rowLength);
     rowClean[rowLength] = '\0';
-    char *rowTemp = malloc((rowLength + 1) * sizeof(char));
+    char* rowTemp = malloc((rowLength + 1) * sizeof(char));
 
     size_t wallPosition = 0;
     for (i = 0; i < parser->columnsCount; ++i) {
@@ -203,7 +214,8 @@ void writeToFile(CsvParser *parser, FILE *file) {
     free(rowTemp);
 }
 
-void deleteCsvParser(CsvParser *parser) {
+void deleteCsvParser(CsvParser* parser)
+{
     if (parser == NULL) {
         return;
     }
@@ -215,6 +227,7 @@ void deleteCsvParser(CsvParser *parser) {
     if (parser->rows != NULL) {
         size_t i = 0;
         for (i = 0; i < parser->rowsCount; ++i) {
+            // printf("%d ", (int)i);
             deleteRow(&parser->rows[i]);
         }
 
