@@ -43,6 +43,7 @@ CsvRow* getRow(const char *line) {
     CsvRow *row = malloc(sizeof(CsvRow));
     size_t lineLength = strlen(line);
     row->line = malloc((lineLength + 1) * sizeof(char));
+    strcpy(row->line, line);
     row->elements = malloc(MAX_ELEMENTS_IN_ROW_COUNT * sizeof(CsvElementInRow));
     row->elementsCount = 0;
 
@@ -140,6 +141,66 @@ void writeToFile(CsvParser *parser, FILE *file) {
     if (file == NULL || parser == NULL) {
         return;
     }
+
+    size_t rowLength = parser->columnsCount * 3 + 1;
+    size_t i = 0;
+    for (i = 0; i < parser->columnsCount; ++i) {
+        rowLength += parser->maxColumnsLength[i];
+    }
+
+    char *borderHead = malloc((rowLength + 1) * sizeof(char));
+    memset(borderHead, '=', rowLength);
+    borderHead[rowLength] = '\0';
+    char *borderBody = malloc((rowLength + 1) * sizeof(char));
+    memset(borderBody, '-', rowLength);
+    borderBody[rowLength] = '\0';
+    char *rowClean = malloc((rowLength + 1) * sizeof(char));
+    memset(rowClean, ' ', rowLength);
+    rowClean[rowLength] = '\0';
+    char *rowTemp = malloc((rowLength + 1) * sizeof(char));
+
+    size_t wallPosition = 0;
+    for (i = 0; i < parser->columnsCount; ++i) {
+        borderHead[wallPosition] = '+';
+        borderBody[wallPosition] = '+';
+        rowClean[wallPosition] = '|';
+        wallPosition += parser->maxColumnsLength[i] + 3;
+    }
+
+    borderHead[wallPosition] = '+';
+    borderBody[wallPosition] = '+';
+    rowClean[wallPosition] = '|';
+
+    fprintf(file, "%s\n", borderHead);
+
+    size_t rowIndex = 0;
+    for (rowIndex = 0; rowIndex < parser->rowsCount; ++rowIndex) {
+        memcpy(rowTemp, rowClean, rowLength + 1);
+        wallPosition = 2;
+
+        for (i = 0; i < parser->columnsCount; ++i) {
+            CsvElementInRow e = parser->rows[rowIndex].elements[i];
+
+            memcpy(rowTemp + wallPosition + (e.isNumber ? parser->maxColumnsLength[i] - e.length : 0),
+                parser->rows[rowIndex].line + e.startIndexInRow,
+                e.length);
+
+            wallPosition += parser->maxColumnsLength[i] + 3;
+        }
+
+        fprintf(file, "%s\n", rowTemp);
+
+        if (rowIndex == 0) {
+            fprintf(file, "%s\n", borderHead);
+        } else {
+            fprintf(file, "%s\n", borderBody);
+        }
+    }
+
+    free(borderHead);
+    free(borderBody);
+    free(rowClean);
+    free(rowTemp);
 }
 
 void deleteCsvParser(CsvParser *parser) {
