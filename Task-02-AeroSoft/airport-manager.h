@@ -35,4 +35,4 @@ AirportManagerReturnCode amDeleteAirport(AirportManager* manager, const char* ia
 AirportManagerReturnCode amSaveToFile(AirportManager* manager, const char* path, size_t* airportsNumber);
 
 // AmSucsess, AmErrNoManager
-AirportManagerReturnCode amDeleteManager(AirportManager **manager);
+AirportManagerReturnCode amDeleteManager(AirportManager** manager);
