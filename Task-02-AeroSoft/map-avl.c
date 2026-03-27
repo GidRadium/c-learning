@@ -1,5 +1,4 @@
 #include "map.h"
-#include <cstddef>
 #include <stdlib.h>
 
 typedef struct MapNode {
@@ -110,13 +109,17 @@ MapReturnCode mapGetSize(Map* map, size_t* mapSize)
         return MapErrNoMap;
     }
 
+    if (mapSize != NULL) {
+        *mapSize = map->size;
+    }
+
     return MapSucsess;
 }
 
 
 MapReturnCode mapDelete(Map** map)
 {
-    if (map == NULL) {
+    if (map == NULL || (*map) == NULL) {
         return MapErrNoMap;
     }
 
