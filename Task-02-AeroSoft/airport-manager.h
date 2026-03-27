@@ -14,9 +14,10 @@ typedef enum {
 
 } AirportManagerReturnCode;
 
+// Struct that manages airports by their IATA codes.
 typedef struct AirportManager AirportManager;
 
-// Allocates memmory for manager struct. Manager is NULL if something went wrong.
+// Allocates memmory for manager struct. Sets manager as NULL if something went wrong.
 // Possible return codes: AmSucsess, AmErrNoManager, AmErrOnMalloc
 AirportManagerReturnCode amCreateManager(AirportManager** manager);
 
