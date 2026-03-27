@@ -136,7 +136,13 @@ AirportManagerReturnCode amAddAirport(AirportManager* manager, const char* iataC
         return AmErrIataCodeIncorrect;
     }
 
+    if (mapContains(manager->data, iataToKey(iataCode)) == MapSucsess) {
+        return AmErrAirportAlreadyExist;
+    }
 
+    if (mapSet(manager->data, iataToKey(iataCode), (MapValue)name) != MapSucsess) {
+        return AmErrOnMalloc;
+    }
 
     return AmSucsess;
 }

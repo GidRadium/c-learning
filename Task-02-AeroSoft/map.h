@@ -27,6 +27,9 @@ MapReturnCode mapSet(Map* map, MapKey key, MapValue value);
 MapReturnCode mapGet(Map* map, MapKey key, MapValue* value);
 
 // MapSucsess, MapErrNoMap, MapErrKeyNotFound
+MapReturnCode mapContains(Map* map, MapKey key);
+
+// MapSucsess, MapErrNoMap, MapErrKeyNotFound
 MapReturnCode mapErase(Map* map, MapKey key);
 
 // MapSucsess, MapErrNoMap
