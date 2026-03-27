@@ -17,7 +17,94 @@ typedef struct Map {
 } Map;
 
 
-MapNode* findNode(MapNode* node, MapKey key) {
+int getHeight(MapNode* node)
+{
+    if (node == NULL) {
+        return 0;
+    }
+
+    return node->height;
+}
+
+int getBalance(MapNode* node)
+{
+    if (node == NULL) {
+        return 0;
+    }
+
+    return getHeight(node->left) - getHeight(node->right);
+}
+
+void updateHeight(MapNode* node)
+{
+    if (node == NULL) {
+        return;
+    }
+
+    int leftHeight = getHeight(node->left);
+    int rightHeight = getHeight(node->right);
+
+    node->height = 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
+}
+
+MapNode* rotateRight(MapNode* pivot) {
+    MapNode* newRoot = pivot->left;
+    MapNode* middleSubtree = newRoot->right;
+
+    newRoot->right = pivot;
+    pivot->left = middleSubtree;
+
+    updateHeight(pivot);
+    updateHeight(newRoot);
+
+    return newRoot;
+}
+
+MapNode* rotateLeft(MapNode* pivot) {
+    MapNode* newRoot = pivot->right;
+    MapNode* middleSubtree = newRoot->left;
+
+    newRoot->left = pivot;
+    pivot->right = middleSubtree;
+
+    updateHeight(pivot);
+    updateHeight(newRoot);
+
+    return newRoot;
+}
+
+MapNode* rebalance(MapNode* node)
+{
+    updateHeight(node);
+    int balance = getBalance(node);
+
+    // Left Left
+    if (balance > 1 && getBalance(node->left) >= 0) {
+        return rotateRight(node);
+    }
+
+    // Left Right
+    if (balance > 1 && getBalance(node->left) < 0) {
+        node->left = rotateLeft(node->left);
+        return rotateRight(node);
+    }
+
+    // Right Right
+    if (balance < -1 && getBalance(node->right) <= 0) {
+        return rotateLeft(node);
+    }
+
+    // Right Left
+    if (balance < -1 && getBalance(node->right) > 0) {
+        node->right = rotateRight(node->right);
+        return rotateLeft(node);
+    }
+
+    return node;
+}
+
+MapNode* findNode(MapNode* node, MapKey key)
+{
     while (node != NULL) {
         if (key == node->key) {
             return node;
@@ -53,7 +140,6 @@ MapReturnCode mapCreate(Map** map, MapValueCopyFunc copyFunc, MapValueFreeFunc f
     return MapSucsess;
 }
 
-
 MapReturnCode mapSet(Map* map, MapKey key, MapValue value)
 {
     if (map == NULL) {
@@ -62,7 +148,6 @@ MapReturnCode mapSet(Map* map, MapKey key, MapValue value)
 
     return MapSucsess;
 }
-
 
 MapReturnCode mapGet(Map* map, MapKey key, MapValue* value)
 {
@@ -82,16 +167,18 @@ MapReturnCode mapGet(Map* map, MapKey key, MapValue* value)
     return MapSucsess;
 }
 
-
 MapReturnCode mapContains(Map* map, MapKey key)
 {
     if (map == NULL) {
         return MapErrNoMap;
     }
 
-    return findNode(map->root, key) == NULL ? MapErrKeyNotFound : MapSucsess;
-}
+    if (findNode(map->root, key) == NULL) {
+        return MapErrKeyNotFound;
+    }
 
+    return MapSucsess;
+}
 
 MapReturnCode mapErase(Map* map, MapKey key)
 {
@@ -101,7 +188,6 @@ MapReturnCode mapErase(Map* map, MapKey key)
 
     return MapSucsess;
 }
-
 
 MapReturnCode mapGetSize(Map* map, size_t* mapSize)
 {
@@ -115,7 +201,6 @@ MapReturnCode mapGetSize(Map* map, size_t* mapSize)
 
     return MapSucsess;
 }
-
 
 MapReturnCode mapDelete(Map** map)
 {
