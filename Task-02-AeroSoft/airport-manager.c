@@ -26,7 +26,9 @@ void freeString(MapValue value)
 
 bool isIataCorrect(const char* iataCode)
 {
-    if (!iataCode || strlen(iataCode) != 3) return false;
+    if (iataCode == NULL || strlen(iataCode) != 3) {
+        return false;
+    }
 
     return (isupper(iataCode[0]) && isupper(iataCode[1]) && isupper(iataCode[2]));
 }
@@ -39,12 +41,26 @@ MapKey iataToKey(const char* code)
 
 typedef struct AirportManager {
     Map* data;
-
 } AirportManager;
 
 
 AirportManagerReturnCode amCreateManager(AirportManager** manager)
 {
+    if (manager == NULL) {
+        return AmErrNoManager;
+    }
+
+    *manager = malloc(sizeof(AirportManager));
+    if ((*manager) == NULL) {
+        return AmErrOnMalloc;
+    }
+
+    MapReturnCode mapCode = mapCreate(&((*manager)->data), copyString, freeString);
+    if (mapCode == MapErrOnMalloc) {
+        free(*manager);
+        *manager = NULL;
+        return AmErrOnMalloc;
+    }
 
     return AmSucsess;
 }
