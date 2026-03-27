@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef int MapKey;
 typedef void* MapValue;
@@ -37,3 +38,17 @@ MapReturnCode mapGetSize(Map* map, size_t* mapSize);
 
 // MapSucsess, MapErrNoMap
 MapReturnCode mapDelete(Map** map);
+
+typedef struct Iterator Iterator;
+typedef struct MapEntry {
+    MapKey key;
+    MapValue value;
+} MapEntry;
+
+Iterator* iteratorInit(Map* map);
+
+bool iteratorHasNext(Iterator* it);
+
+MapEntry iteratorNext(Iterator* it);
+
+void iteratorDelete(Iterator* it);

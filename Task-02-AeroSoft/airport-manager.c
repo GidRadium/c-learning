@@ -36,7 +36,15 @@ bool isIataCorrect(const char* iataCode)
 
 MapKey iataToKey(const char* iataCode)
 {
-    return (iataCode[0] << 16) | (iataCode[1] << 8) | iataCode[2];
+    MapKey key = 0;
+    memcpy(&key, iataCode, 3);
+    return key;
+}
+
+void keyToIata(MapKey key, char code[4])
+{
+    memcpy(code, &key, 3);
+    code[3] = '\0';
 }
 
 
@@ -153,6 +161,14 @@ AirportManagerReturnCode amDeleteAirport(AirportManager* manager, const char* ia
         return AmErrNoManager;
     }
 
+    if (!isIataCorrect(iataCode)) {
+        return AmErrIataCodeIncorrect;
+    }
+
+    if (mapErase(manager->data, iataToKey(iataCode)) != MapSucsess) {
+        return AmErrAirportNotFound;
+    }
+
     return AmSucsess;
 }
 
@@ -161,6 +177,32 @@ AirportManagerReturnCode amSaveToFile(AirportManager* manager, const char* path,
     if (manager == NULL) {
         return AmErrNoManager;
     }
+
+    FILE* file = fopen(path, "w");
+    if (file == NULL) {
+        return AmErrNoFile;
+    }
+
+    Iterator* it = iteratorInit(manager->data);
+    if (it == NULL) {
+        fclose(file);
+        return AmErrOnMalloc;
+    }
+
+    *airportsNumber = 0;
+    while (iteratorHasNext(it)) {
+        MapEntry entry = iteratorNext(it);
+
+        char iataCode[4];
+        keyToIata(entry.key, iataCode);
+
+        fprintf(file, "%s:%s\n", iataCode, (char*)entry.value);
+
+        (*airportsNumber)++;
+    }
+
+    iteratorDelete(it);
+    fclose(file);
 
     return AmSucsess;
 }
