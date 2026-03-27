@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <stdio.h>
 
 MapValue copyString(MapValue value)
 {
@@ -69,6 +70,33 @@ AirportManagerReturnCode amInitFromFile(AirportManager* manager, const char* pat
 {
     if (manager == NULL) {
         return AmErrNoManager;
+    }
+
+    if (path == NULL) {
+        return AmErrNoFile;
+    }
+
+    FILE* file = fopen(path, "r");
+    if (file == NULL) {
+        return AmErrNoFile;
+    }
+
+    *airportsNumber = 0;
+    char lineBuffer[1024];
+    char codeBuffer[4];
+    char nameBuffer[1020];
+    while (fgets(lineBuffer, sizeof(lineBuffer), file)) {
+        if (sscanf(lineBuffer, "%3[^:]:%255[^\n]", codeBuffer, nameBuffer) != 2) {
+            continue;
+        }
+
+        if (!isIataCorrect(codeBuffer)) {
+            continue;
+        }
+
+        if (amAddAirport(manager, codeBuffer, nameBuffer) == AmSucsess) {
+            (*airportsNumber)++;
+        }
     }
 
     return AmSucsess;
