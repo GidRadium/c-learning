@@ -34,9 +34,9 @@ bool isIataCorrect(const char* iataCode)
     return (isupper(iataCode[0]) && isupper(iataCode[1]) && isupper(iataCode[2]));
 }
 
-MapKey iataToKey(const char* code)
+MapKey iataToKey(const char* iataCode)
 {
-    return (code[0] << 16) | (code[1] << 8) | code[2];
+    return (iataCode[0] << 16) | (iataCode[1] << 8) | iataCode[2];
 }
 
 
@@ -108,6 +108,21 @@ AirportManagerReturnCode amFindAirport(AirportManager* manager, const char* iata
         return AmErrNoManager;
     }
 
+    if (!isIataCorrect(iataCode)) {
+        return AmErrIataCodeIncorrect;
+    }
+
+    MapValue value;
+    if (mapGet(manager->data, iataToKey(iataCode), &value) != MapSucsess) {
+        return AmErrAirportNotFound;
+    }
+
+    if (strlen((char*)value) >= bufferSize) {
+        return AmErrNameTooLong;
+    }
+
+    strcpy(nameBuffer, (char*)value);
+
     return AmSucsess;
 }
 
@@ -116,6 +131,12 @@ AirportManagerReturnCode amAddAirport(AirportManager* manager, const char* iataC
     if (manager == NULL) {
         return AmErrNoManager;
     }
+
+    if (!isIataCorrect(iataCode)) {
+        return AmErrIataCodeIncorrect;
+    }
+
+
 
     return AmSucsess;
 }
