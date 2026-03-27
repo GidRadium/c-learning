@@ -67,30 +67,58 @@ AirportManagerReturnCode amCreateManager(AirportManager** manager)
 
 AirportManagerReturnCode amInitFromFile(AirportManager* manager, const char* path, size_t* airportsNumber)
 {
+    if (manager == NULL) {
+        return AmErrNoManager;
+    }
+
     return AmSucsess;
 }
 
 AirportManagerReturnCode amFindAirport(AirportManager* manager, const char* iataCode, char* nameBuffer, size_t bufferSize)
 {
+    if (manager == NULL) {
+        return AmErrNoManager;
+    }
+
     return AmSucsess;
 }
 
 AirportManagerReturnCode amAddAirport(AirportManager* manager, const char* iataCode, const char* name)
 {
+    if (manager == NULL) {
+        return AmErrNoManager;
+    }
+
     return AmSucsess;
 }
 
 AirportManagerReturnCode amDeleteAirport(AirportManager* manager, const char* iataCode)
 {
+    if (manager == NULL) {
+        return AmErrNoManager;
+    }
+
     return AmSucsess;
 }
 
 AirportManagerReturnCode amSaveToFile(AirportManager* manager, const char* path, size_t* airportsNumber)
 {
+    if (manager == NULL) {
+        return AmErrNoManager;
+    }
+
     return AmSucsess;
 }
 
 AirportManagerReturnCode amDeleteManager(AirportManager** manager)
 {
+    if (manager == NULL || (*manager) == NULL) {
+        return AmErrNoManager;
+    }
+
+    mapDelete(&((*manager)->data));
+    free(*manager);
+    *manager = NULL;
+
     return AmSucsess;
 }
