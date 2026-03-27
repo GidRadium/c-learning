@@ -1,4 +1,5 @@
 #include "map.h"
+#include <cstddef>
 #include <stdlib.h>
 
 typedef struct MapNode {
@@ -70,6 +71,15 @@ MapReturnCode mapGet(Map* map, MapKey key, MapValue* value)
         return MapErrNoMap;
     }
 
+    MapNode* node = findNode(map->root, key);
+    if (node == NULL) {
+        return MapErrKeyNotFound;
+    }
+
+    if (value != NULL) {
+        *value = node->value;
+    }
+
     return MapSucsess;
 }
 
@@ -80,7 +90,7 @@ MapReturnCode mapContains(Map* map, MapKey key)
         return MapErrNoMap;
     }
 
-    return MapSucsess;
+    return findNode(map->root, key) == NULL ? MapErrKeyNotFound : MapSucsess;
 }
 
 
