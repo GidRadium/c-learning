@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 // Data key for MapValue stored in Map struct.
 typedef int MapKey;

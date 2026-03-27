@@ -47,7 +47,8 @@ void updateHeight(MapNode* node)
     node->height = 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
 }
 
-MapNode* rotateRight(MapNode* pivot) {
+MapNode* rotateRight(MapNode* pivot)
+{
     MapNode* newRoot = pivot->left;
     MapNode* middleSubtree = newRoot->right;
 
@@ -60,7 +61,8 @@ MapNode* rotateRight(MapNode* pivot) {
     return newRoot;
 }
 
-MapNode* rotateLeft(MapNode* pivot) {
+MapNode* rotateLeft(MapNode* pivot)
+{
     MapNode* newRoot = pivot->right;
     MapNode* middleSubtree = newRoot->left;
 
@@ -121,6 +123,38 @@ MapNode* findNode(MapNode* node, MapKey key)
     return NULL;
 }
 
+// Only if node not in tree
+MapNode* insertNode(MapNode* node, MapNode* newNode)
+{
+    if (node == NULL) {
+        return newNode;
+    }
+
+    if (newNode->key < node->key) {
+        node->left = insertNode(node->left, newNode);
+    } else if (newNode->key > node->key) {
+        node->right = insertNode(node->right, newNode);
+    }
+
+    return rebalance(node);
+}
+
+MapNode* createNode(MapKey key, MapValue value)
+{
+    MapNode* node = malloc(sizeof(MapNode));
+    if (node == NULL) {
+        return NULL;
+    }
+
+    node->key = key;
+    node->value = value;
+    node->height = 1;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
+
 MapReturnCode mapCreate(Map** map, MapValueCopyFunc copyFunc, MapValueFreeFunc freeFunc)
 {
     if (map == NULL) {
@@ -145,6 +179,30 @@ MapReturnCode mapSet(Map* map, MapKey key, MapValue value)
     if (map == NULL) {
         return MapErrNoMap;
     }
+
+    MapNode* existingNode = findNode(map->root, key);
+
+    MapValue newValue = map->copyFunc(value);
+    if (newValue == NULL && value != NULL) {
+        return MapErrOnMalloc;
+    }
+
+    if (existingNode != NULL) {
+        map->freeFunc(existingNode->value);
+        existingNode->value = newValue;
+
+        return MapSucsess;
+    }
+
+    MapNode* newNode = createNode(key, newValue);
+    if (newNode == NULL) {
+        map->freeFunc(newValue);
+
+        return MapErrOnMalloc;
+    }
+
+    map->root = insertNode(map->root, newNode);
+    map->size++;
 
     return MapSucsess;
 }

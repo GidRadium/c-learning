@@ -1,11 +1,11 @@
 #include "airport-manager.h"
 
 #include "map.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 MapValue copyString(MapValue value)
 {
@@ -47,11 +47,9 @@ void keyToIata(MapKey key, char code[4])
     code[3] = '\0';
 }
 
-
 typedef struct AirportManager {
     Map* data;
 } AirportManager;
-
 
 AirportManagerReturnCode amCreateManager(AirportManager** manager)
 {
