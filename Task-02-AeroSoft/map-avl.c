@@ -16,7 +16,6 @@ typedef struct Map {
     MapValueFreeFunc freeFunc;
 } Map;
 
-
 int getHeight(MapNode* node)
 {
     if (node == NULL) {
@@ -139,7 +138,7 @@ MapNode* insertNode(MapNode* node, MapNode* newNode)
     return rebalance(node);
 }
 
-MapNode* createNode(MapKey key, MapValue value)
+MapNode* createNode(MapKey key, MapValue valueDeepCopy)
 {
     MapNode* node = malloc(sizeof(MapNode));
     if (node == NULL) {
@@ -147,7 +146,7 @@ MapNode* createNode(MapKey key, MapValue value)
     }
 
     node->key = key;
-    node->value = value;
+    node->value = valueDeepCopy;
     node->height = 1;
     node->left = NULL;
     node->right = NULL;
