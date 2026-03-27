@@ -17,6 +17,23 @@ typedef struct Map {
 } Map;
 
 
+MapNode* findNode(MapNode* node, MapKey key) {
+    while (node != NULL) {
+        if (key == node->key) {
+            return node;
+        }
+
+        if (key < node->key) {
+            node = node->left;
+            continue;
+        }
+
+        node = node->right;
+    }
+
+    return NULL;
+}
+
 MapReturnCode mapCreate(Map** map, MapValueCopyFunc copyFunc, MapValueFreeFunc freeFunc)
 {
     if (map == NULL) {
