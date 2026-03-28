@@ -154,8 +154,8 @@ MapNode* nodeCreate(MapKey key, MapValue valueDeepCopy)
     return node;
 }
 
-
-MapValue nodeDelete(MapNode** nodeRef, MapKey key) {
+MapValue nodeDelete(MapNode** nodeRef, MapKey key)
+{
     MapNode* node = *nodeRef;
     MapValue valueToFree = NULL;
 
@@ -190,7 +190,6 @@ MapValue nodeDelete(MapNode** nodeRef, MapKey key) {
 
     return valueToFree;
 }
-
 
 MapReturnCode mapCreate(Map** map, MapValueCopyFunc copyFunc, MapValueFreeFunc freeFunc)
 {
