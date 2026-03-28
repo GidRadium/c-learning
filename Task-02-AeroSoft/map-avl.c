@@ -104,7 +104,7 @@ MapNode* rebalance(MapNode* node)
     return node;
 }
 
-MapNode* findNode(MapNode* node, MapKey key)
+MapNode* nodeFind(MapNode* node, MapKey key)
 {
     while (node != NULL) {
         if (key == node->key) {
@@ -123,22 +123,22 @@ MapNode* findNode(MapNode* node, MapKey key)
 }
 
 // Only if node not in tree
-MapNode* insertNode(MapNode* node, MapNode* newNode)
+MapNode* nodeInsert(MapNode* node, MapNode* newNode)
 {
     if (node == NULL) {
         return newNode;
     }
 
     if (newNode->key < node->key) {
-        node->left = insertNode(node->left, newNode);
+        node->left = nodeInsert(node->left, newNode);
     } else if (newNode->key > node->key) {
-        node->right = insertNode(node->right, newNode);
+        node->right = nodeInsert(node->right, newNode);
     }
 
     return rebalance(node);
 }
 
-MapNode* createNode(MapKey key, MapValue valueDeepCopy)
+MapNode* nodeCreate(MapKey key, MapValue valueDeepCopy)
 {
     MapNode* node = malloc(sizeof(MapNode));
     if (node == NULL) {
@@ -153,6 +153,44 @@ MapNode* createNode(MapKey key, MapValue valueDeepCopy)
 
     return node;
 }
+
+
+MapValue nodeDelete(MapNode** nodeRef, MapKey key) {
+    MapNode* node = *nodeRef;
+    MapValue valueToFree = NULL;
+
+    if (key < node->key) {
+        valueToFree = nodeDelete(&node->left, key);
+    } else if (key > node->key) {
+        valueToFree = nodeDelete(&node->right, key);
+    } else {
+        valueToFree = node->value;
+        if (node->left == NULL || node->right == NULL) {
+            MapNode* temp = node->left != NULL ? node->left : node->right;
+            *nodeRef = temp;
+
+            free(node);
+        } else {
+            MapNode* successor = node->right;
+
+            while (successor != NULL && successor->left != NULL) {
+                successor = successor->left;
+            }
+
+            node->key = successor->key;
+            node->value = successor->value;
+
+            valueToFree = nodeDelete(&node->right, successor->key);
+        }
+    }
+
+    if (*nodeRef != NULL) {
+        *nodeRef = rebalance(*nodeRef);
+    }
+
+    return valueToFree;
+}
+
 
 MapReturnCode mapCreate(Map** map, MapValueCopyFunc copyFunc, MapValueFreeFunc freeFunc)
 {
@@ -179,7 +217,7 @@ MapReturnCode mapSet(Map* map, MapKey key, MapValue value)
         return MapErrNoMap;
     }
 
-    MapNode* existingNode = findNode(map->root, key);
+    MapNode* existingNode = nodeFind(map->root, key);
 
     MapValue newValue = map->copyFunc(value);
     if (newValue == NULL && value != NULL) {
@@ -193,14 +231,14 @@ MapReturnCode mapSet(Map* map, MapKey key, MapValue value)
         return MapSucsess;
     }
 
-    MapNode* newNode = createNode(key, newValue);
+    MapNode* newNode = nodeCreate(key, newValue);
     if (newNode == NULL) {
         map->freeFunc(newValue);
 
         return MapErrOnMalloc;
     }
 
-    map->root = insertNode(map->root, newNode);
+    map->root = nodeInsert(map->root, newNode);
     map->size++;
 
     return MapSucsess;
@@ -212,7 +250,7 @@ MapReturnCode mapGet(Map* map, MapKey key, MapValue* value)
         return MapErrNoMap;
     }
 
-    MapNode* node = findNode(map->root, key);
+    MapNode* node = nodeFind(map->root, key);
     if (node == NULL) {
         return MapErrKeyNotFound;
     }
@@ -230,7 +268,7 @@ MapReturnCode mapContains(Map* map, MapKey key)
         return MapErrNoMap;
     }
 
-    if (findNode(map->root, key) == NULL) {
+    if (nodeFind(map->root, key) == NULL) {
         return MapErrKeyNotFound;
     }
 
@@ -242,6 +280,14 @@ MapReturnCode mapErase(Map* map, MapKey key)
     if (map == NULL) {
         return MapErrNoMap;
     }
+
+    if (nodeFind(map->root, key) == NULL) {
+        return MapErrKeyNotFound;
+    }
+
+    MapValue valueToFree = nodeDelete(&map->root, key);
+    map->freeFunc(valueToFree);
+    map->size--;
 
     return MapSucsess;
 }
