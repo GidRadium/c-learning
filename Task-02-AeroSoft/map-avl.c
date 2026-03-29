@@ -204,7 +204,6 @@ void freeTree(MapNode* node, MapValueFreeFunc freeFunc)
     free(node);
 }
 
-
 MapReturnCode mapCreate(Map** map, MapValueCopyFunc copyFunc, MapValueFreeFunc freeFunc)
 {
     if (map == NULL) {
