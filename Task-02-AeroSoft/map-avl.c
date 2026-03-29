@@ -191,6 +191,20 @@ MapValue nodeDelete(MapNode** nodeRef, MapKey key)
     return valueToFree;
 }
 
+void freeTree(MapNode* node, MapValueFreeFunc freeFunc)
+{
+    if (node == NULL) {
+        return;
+    }
+
+    freeTree(node->left, freeFunc);
+    freeTree(node->right, freeFunc);
+    freeFunc(node->value);
+
+    free(node);
+}
+
+
 MapReturnCode mapCreate(Map** map, MapValueCopyFunc copyFunc, MapValueFreeFunc freeFunc)
 {
     if (map == NULL) {
@@ -309,6 +323,10 @@ MapReturnCode mapDelete(Map** map)
     if (map == NULL || (*map) == NULL) {
         return MapErrNoMap;
     }
+
+    freeTree((*map)->root, (*map)->freeFunc);
+    free(*map);
+    *map = NULL;
 
     return MapSucsess;
 }
