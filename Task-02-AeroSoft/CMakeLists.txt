@@ -6,8 +6,8 @@ add_library(map-avl-lib map-avl.c)
 target_include_directories(map-avl-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # List Map Lib
-#add_library(map-list-lib map-list.c)
-#target_include_directories(map-list-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(map-list-lib map-list.c)
+target_include_directories(map-list-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Airport Manager Lib
 add_library(airport-manager-lib airport-manager.c)
@@ -19,8 +19,8 @@ add_executable(aerosoft main.c)
 target_link_libraries(aerosoft PRIVATE airport-manager-lib map-avl-lib)
 
 # Old (list)
-#add_executable(aerosoft-old main.c)
-#target_link_libraries(aerosoft-old PRIVATE airport-manager-lib map-list-lib)
+add_executable(aerosoft-old main.c)
+target_link_libraries(aerosoft-old PRIVATE airport-manager-lib map-list-lib)
 
 # Tests
 # Test map avl implementation
