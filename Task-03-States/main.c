@@ -31,9 +31,11 @@ int main(void)
         stateSizes[partition.data[i].state]++;
     }
 
-    int** groups = malloc(k * sizeof(int*));
+    int** groups = calloc(k, sizeof(int*));
     for (int i = 0; i < k; i++) {
-        groups[i] = malloc(stateSizes[i] * sizeof(int));
+        if (stateSizes[i] > 0) {
+            groups[i] = malloc(stateSizes[i] * sizeof(int));
+        }
     }
 
     int* offsets = calloc(k, sizeof(int));
