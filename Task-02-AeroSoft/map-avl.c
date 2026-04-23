@@ -329,3 +329,94 @@ MapReturnCode mapDelete(Map** map)
 
     return MapSucsess;
 }
+
+struct Iterator {
+    MapNode** stack;
+    size_t stackSize;
+    size_t stackCapacity;
+};
+
+static bool pushLeftBranch(Iterator* it, MapNode* node)
+{
+    while (node != NULL) {
+        if (it->stackSize >= it->stackCapacity) {
+            size_t newCapacity = it->stackCapacity == 0 ? 8 : it->stackCapacity * 2;
+            MapNode** newStack = realloc(it->stack, newCapacity * sizeof(MapNode*));
+            if (newStack == NULL) {
+                return false;
+            }
+
+            it->stack = newStack;
+            it->stackCapacity = newCapacity;
+        }
+
+        it->stack[it->stackSize] = node;
+        it->stackSize = it->stackSize + 1;
+
+        node = node->left;
+    }
+
+    return true;
+}
+
+Iterator* iteratorInit(Map* map)
+{
+    if (map == NULL) {
+        return NULL;
+    }
+
+    Iterator* it = malloc(sizeof(Iterator));
+    if (it == NULL) {
+        return NULL;
+    }
+
+    it->stack = NULL;
+    it->stackSize = 0;
+    it->stackCapacity = 0;
+
+    if (!pushLeftBranch(it, map->root)) {
+        free(it->stack);
+        free(it);
+        return NULL;
+    }
+
+    return it;
+}
+
+bool iteratorHasNext(Iterator* it)
+{
+    if (it == NULL) {
+        return false;
+    }
+
+    return it->stackSize > 0;
+}
+
+MapEntry iteratorNext(Iterator* it)
+{
+    MapEntry entry = { 0 };
+
+    if (it == NULL || it->stackSize == 0) {
+        return entry;
+    }
+
+    it->stackSize = it->stackSize - 1;
+    MapNode* node = it->stack[it->stackSize];
+
+    entry.key = node->key;
+    entry.value = node->value;
+
+    pushLeftBranch(it, node->right);
+
+    return entry;
+}
+
+void iteratorDelete(Iterator* it)
+{
+    if (it == NULL) {
+        return;
+    }
+
+    free(it->stack);
+    free(it);
+}
