@@ -127,7 +127,8 @@ AirportManagerReturnCode amFindAirport(AirportManager* manager, const char* iata
         return AmErrNameTooLong;
     }
 
-    strcpy(nameBuffer, (char*)value);
+    // strcpy(nameBuffer, (char*)value);
+    strncpy(nameBuffer, (const char*)value, bufferSize - 1);
 
     return AmSucsess;
 }

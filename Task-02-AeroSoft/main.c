@@ -59,11 +59,9 @@ int main(int argc, char* argv[])
     char* errNoFile = "Ошибка! Не удалось прочитать файл.";
     char* errIataCodeIncorrect = "Ошибка! Неверный формат кода IATA.";
     char* errAirportAlreadyExist = "Ошибка! Аэропорт уже существует в базе.";
-    char* errAirportNotFound = "Ошибка! Аэропорт не найден в базе.";
     char* errNameTooLong = "Ошибка! Название аэропорта слишком длинное.";
     char* errNoManager = "Ошибка! Менеджер не инициализирован.";
     char* errNoCode = "Ошибка! Не указан код IATA.";
-    char* errNoName = "Ошибка! Не указано название аэропорта.";
     char* errAddFormat = "Ошибка! Формат: add <код>:<название>";
     char* errUnknownCommand = "Ошибка! Неизвестная команда.";
     char* errReadQuery = "Ошибка! Не удалось прочитать запрос.";
