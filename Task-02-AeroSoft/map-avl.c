@@ -122,17 +122,24 @@ MapNode* nodeFind(MapNode* node, MapKey key)
     return NULL;
 }
 
-// Only if node not in tree
-MapNode* nodeInsert(MapNode* node, MapNode* newNode)
+MapNode* nodeInsert(MapNode* node, MapNode* newNode, MapValueFreeFunc freeFunc)
 {
     if (node == NULL) {
         return newNode;
     }
 
     if (newNode->key < node->key) {
-        node->left = nodeInsert(node->left, newNode);
+        node->left = nodeInsert(node->left, newNode, freeFunc);
     } else if (newNode->key > node->key) {
-        node->right = nodeInsert(node->right, newNode);
+        node->right = nodeInsert(node->right, newNode, freeFunc);
+    } else {
+        if (freeFunc != NULL && newNode->value != NULL) {
+            freeFunc(newNode->value);
+        }
+
+        free(newNode);
+
+        return node;
     }
 
     return rebalance(node);
@@ -250,15 +257,7 @@ MapReturnCode mapSet(Map* map, MapKey key, MapValue value)
         return MapErrOnMalloc;
     }
 
-    MapNode* newRoot = nodeInsert(map->root, newNode);
-    if (newRoot == NULL) {
-        map->freeFunc(newNode->value);
-        // free(newNode->key);
-        free(newNode);
-        return MapErrOnMalloc;
-    }
-
-    map->root = newRoot;
+    map->root = nodeInsert(map->root, newNode, map->freeFunc);
     map->size++;
 
     return MapSucsess;
