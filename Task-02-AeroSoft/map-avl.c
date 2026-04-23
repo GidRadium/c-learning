@@ -250,7 +250,15 @@ MapReturnCode mapSet(Map* map, MapKey key, MapValue value)
         return MapErrOnMalloc;
     }
 
-    map->root = nodeInsert(map->root, newNode);
+    MapNode* newRoot = nodeInsert(map->root, newNode);
+    if (newRoot == NULL) {
+        map->freeFunc(newNode->value);
+        // free(newNode->key);
+        free(newNode);
+        return MapErrOnMalloc;
+    }
+
+    map->root = newRoot;
     map->size++;
 
     return MapSucsess;
