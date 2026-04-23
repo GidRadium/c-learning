@@ -1,5 +1,4 @@
 #include "graph.h"
-#include <limits.h>
 #include <stdlib.h>
 
 typedef struct Edge {
@@ -158,7 +157,7 @@ Partition graphSolve(Graph* graph, int numberOfCapitals, const int* capitals)
     return partition;
 }
 
-void graphDestroy(Graph** graph)
+void graphDelete(Graph** graph)
 {
     if (graph == NULL || *graph == NULL) {
         return;
@@ -182,7 +181,7 @@ void graphDestroy(Graph** graph)
 
 void partitionDelete(Partition* partition)
 {
-    if (!partition) {
+    if (partition == NULL) {
         return;
     }
 

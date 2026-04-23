@@ -1,23 +1,17 @@
+#include "graph.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "graph.h"
 
-int main()
+int main(void)
 {
-    int n;
-    int m;
-
+    int n, m;
     if (scanf("%d %d", &n, &m) != 2) {
-        return 1;
+        return -1;
     }
 
     Graph* graph = graphCreate(n, m);
-
     for (int i = 0; i < m; i++) {
-        int u;
-        int v;
-        int length;
-
+        int u, v, length;
         scanf("%d %d %d", &u, &v, &length);
         graphAddEdge(graph, u, v, length);
     }
@@ -26,7 +20,6 @@ int main()
     scanf("%d", &k);
 
     int* capitals = malloc(k * sizeof(int));
-
     for (int i = 0; i < k; i++) {
         scanf("%d", &capitals[i]);
     }
@@ -53,7 +46,6 @@ int main()
 
     for (int state = 0; state < k; state++) {
         printf("%d:", state);
-
         for (int i = 0; i < stateSizes[state]; i++) {
             printf(" %d", groups[state][i]);
         }
