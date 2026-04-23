@@ -34,7 +34,7 @@ int main(void)
     int** groups = calloc(k, sizeof(int*));
     for (int i = 0; i < k; i++) {
         if (stateSizes[i] > 0) {
-            groups[i] = malloc(stateSizes[i] * sizeof(int));
+            groups[i] = calloc(stateSizes[i], sizeof(int));
         }
     }
 
@@ -48,10 +48,11 @@ int main(void)
 
     for (int state = 0; state < k; state++) {
         printf("%d:", state);
-        for (int i = 0; i < stateSizes[state]; i++) {
-            printf(" %d", groups[state][i]);
+        if (groups[state] != NULL) {
+            for (int i = 0; i < stateSizes[state]; i++) {
+                printf(" %d", groups[state][i]);
+            }
         }
-
         printf("\n");
     }
 
