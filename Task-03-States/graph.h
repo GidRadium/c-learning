@@ -4,22 +4,22 @@
 
 typedef struct Graph Graph;
 
-typedef  struct PartitionEntry {
+typedef struct {
     int city;
     int state;
 } PartitionEntry;
 
-typedef struct Partition {
+typedef struct {
     PartitionEntry* data;
     size_t size;
 } Partition;
 
-Graph* graphCreate(int n, int m);
+Graph* graphCreate(int numberOfVertices, int numberOfEdges);
 
-void graphAddEdge(Graph* g, int u, int v, int length);
+void graphAddEdge(Graph* graph, int u, int v, int length);
 
-void graphDelete(Graph** g);
+void graphDelete(Graph** graph);
 
-Partition graphSolve(Graph* g, int capitalsCount, const int* capitals);
+Partition graphSolve(Graph* graph, int numberOfCapitals, const int* capitals);
 
-void partitionDelete(Partition* a);
+void partitionDelete(Partition* partition);
