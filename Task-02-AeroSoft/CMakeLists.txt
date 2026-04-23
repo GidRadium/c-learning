@@ -37,3 +37,10 @@ add_test(NAME TestMapList COMMAND test-map-list)
 add_executable(test-airport-manager test-airport-manager.c)
 target_link_libraries(test-airport-manager PRIVATE airport-manager-lib map-avl-lib)
 add_test(NAME TestAirportManager COMMAND test-airport-manager)
+
+# Benchmark
+add_executable(benchmark-avl benchmark.c)
+target_link_libraries(benchmark-avl PRIVATE airport-manager-lib map-avl-lib)
+
+add_executable(benchmark-list benchmark.c)
+target_link_libraries(benchmark-list PRIVATE airport-manager-lib map-list-lib)
