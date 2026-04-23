@@ -14,7 +14,14 @@ cmake --build build
 
 ## Start
 ```
-./build/Example-task/example_main
+python3 Task-02-AeroSoft/data/prepare.py
+mv airports.txt Task-02-AeroSoft/data/airports.txt
+./build/Task-02-AeroSoft/aerosoft Task-02-AeroSoft/data/airports.txt
+```
+
+## Test
+```
+ctest --test-dir build --output-on-failure
 ```
 
 ## Formatting
