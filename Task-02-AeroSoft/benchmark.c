@@ -13,7 +13,7 @@ char** loadCodes(const char* path, size_t airportsNumber)
         return NULL;
     }
 
-    char** codes = (char**)malloc(airportsNumber * sizeof(char*));
+    char** codes = (char**)calloc(airportsNumber, sizeof(char*));
     if (codes == NULL) {
         fclose(file);
         return NULL;
